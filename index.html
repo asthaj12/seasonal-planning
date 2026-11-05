@@ -2,72 +2,252 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Seasonal &amp; Event Demand Planning — Demo</title>
+<meta name="description" content="Scenario planning and inventory commitment demo: scenario dashboard, planning calendar, lift analysis, and risk flags. Synthetic demo data."/>
+<link rel="canonical" href="https://asthaj12.github.io/seasonal-planning/"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='system-ui,Arial,sans-serif' font-size='26' font-weight='800' fill='%23818cf8'%3EAJ%3C/text%3E%3C/svg%3E"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Scenario Planning &amp; Inventory Commitment — Demo"/>
+<meta property="og:description" content="Scenario planning and inventory commitment demo: scenario dashboard, planning calendar, lift analysis, and risk flags. Synthetic demo data."/>
+<meta property="og:url" content="https://asthaj12.github.io/seasonal-planning/"/>
+<meta property="og:image" content="https://asthaj12.github.io/assets/portfolio-share.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Scenario Planning &amp; Inventory Commitment — Demo"/>
+<meta name="twitter:description" content="Scenario planning and inventory commitment demo: scenario dashboard, planning calendar, lift analysis, and risk flags. Synthetic demo data."/>
+<meta name="twitter:image" content="https://asthaj12.github.io/assets/portfolio-share.png"/>
+<title>Scenario Planning &amp; Inventory Commitment — Demo</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 <style>
-:root{--s0:#f9f9f7;--s1:#fcfcfb;--ink:#0b0b0b;--sec:#52514e;--muted:#898781;--grid:#e1e0d9;--border:rgba(11,11,11,.10);--blue:#6366f1;--orange:#eb6834;--aqua:#1baf7a;--yellow:#eda100;--magenta:#e87ba4;--good:#0ca30c;--warn:#fab219;--crit:#d03b3b;}
+:root{
+  --s0:#f9f9f7;--s1:#fcfcfb;--ink:#0b0b0b;--sec:#52514e;--muted:#898781;
+  --grid:#e1e0d9;--border:rgba(11,11,11,.10);
+  --blue:#6366f1;--orange:#eb6834;--aqua:#1baf7a;--yellow:#eda100;
+  --pink:#e87ba4;--violet:#4a3aa7;
+  --good:#0ca30c;--warn:#fab219;--crit:#d03b3b;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;background:var(--s0);color:var(--ink);}
-.demo-banner{background:#fffbeb;border-bottom:2px solid #f59e0b;padding:8px 20px;font-size:12px;font-weight:600;color:#92400e;display:flex;align-items:center;}
-.demo-banner .rs{margin-left:auto;font-weight:400;font-size:11px;color:#78350f;}
-.topbar{background:var(--s1);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:16px;}
-.brand{font-size:15px;font-weight:700;} .sub{font-size:11px;color:var(--sec);}
-.links{margin-left:auto;display:flex;gap:12px;} .links a{color:var(--ind);font-size:12px;font-weight:600;text-decoration:none;} .links a:hover{text-decoration:underline;}
-.tab-nav{background:var(--s1);border-bottom:1px solid var(--grid);padding:0 20px;display:flex;gap:2px;}
-.tab-btn{padding:10px 16px;border:none;background:none;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
-.tab-btn:hover{color:var(--sec);} .tab-btn.active{color:var(--ind);border-bottom-color:var(--ind);font-weight:600;}
+
+.conf-banner{background:#fff8e1;border-bottom:2px solid var(--yellow);padding:10px 20px;font-size:11px;color:#7c5700;line-height:1.6;}
+.demo-banner{background:#fffbeb;border-bottom:1px solid #f59e0b;padding:7px 20px;font-size:11px;font-weight:600;color:#92400e;}
+.conf-banner{background:#fff8e1;border-bottom:2px solid var(--yellow);padding:10px 20px;font-size:11px;color:#7c5700;line-height:1.6;}
+.demo-banner{background:#fffbeb;border-bottom:1px solid #f59e0b;padding:7px 20px;font-size:11px;font-weight:600;color:#92400e;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.demo-banner .rs{margin-left:auto;font-weight:500;color:#78350f;}
+.tab-bar{display:flex;padding:0 20px;border-bottom:1px solid var(--grid);background:var(--s0);position:sticky;top:var(--nav-h,48px);z-index:190;overflow-x:auto;scrollbar-width:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-btn{padding:10px 16px;border:none;background:none;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .15s,border-color .15s;flex-shrink:0;}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
+.tab-btn:hover:not(.active){color:var(--ink);}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
 main{padding:20px;max-width:1300px;margin:0 auto;}
-.tab-panel{display:none;} .tab-panel.active{display:block;}
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:20px;}
 .kpi{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:14px 16px;}
 .kpi .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
-.kpi .val{font-size:22px;font-weight:700;margin:4px 0 2px;}
-.kpi .delta{font-size:11px;font-weight:600;}
-.kpi.bl{border-left:3px solid var(--ind);} .kpi.or{border-left:3px solid var(--orange);} .kpi.gd{border-left:3px solid var(--good);}
-.chart-grid{display:grid;gap:16px;} .cols2{grid-template-columns:1fr 1fr;}
+.kpi .val{font-size:21px;font-weight:700;margin:4px 0 2px;color:var(--ink);}
+.kpi .sub{font-size:11px;color:var(--sec);}
+.kpi .sub.good{color:var(--good);font-weight:600;}
+.kpi .sub.crit{color:var(--crit);font-weight:600;}
+.kpi .sub.warn{color:#92400e;font-weight:600;}
+.kpi.bl{border-left:3px solid var(--blue);}
+.kpi.or{border-left:3px solid var(--orange);}
+.kpi.gd{border-left:3px solid var(--good);}
+.kpi.yw{border-left:3px solid var(--yellow);}
+.kpi.aq{border-left:3px solid var(--aqua);}
+.kpi.vt{border-left:3px solid var(--violet);}
+.kpi.cr{border-left:3px solid var(--crit);}
+.chart-grid{display:grid;gap:16px;margin-bottom:16px;}
+.cols2{grid-template-columns:1fr 1fr;}
+.full{grid-column:1/-1;}
 .card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:16px;}
-.card .ttl{font-size:12px;font-weight:700;margin-bottom:3px;} .card .sub2{font-size:11px;color:var(--muted);margin-bottom:12px;}
-.full{grid-column:1/-1;} canvas{display:block;}
-.scenario-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;}
+.card .ttl{font-size:12px;font-weight:700;margin-bottom:3px;color:var(--ink);}
+.card .sub2{font-size:11px;color:var(--muted);margin-bottom:12px;}
+.mb16{margin-bottom:16px;}
+.cw{position:relative;height:240px;}
+.cw-tall{position:relative;height:280px;}
+.tbl-wrap{overflow-x:auto;margin-top:4px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--grid);background:var(--s0);}
+td{padding:8px 10px;border-bottom:1px solid var(--grid);color:var(--sec);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f4f3f0;}
+td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--ink);}
+td.strong{font-weight:600;color:var(--ink);}
+td.dim{color:var(--muted);}
+td.sm{font-size:11px;}
+td.t-crit{color:var(--crit);font-weight:600;}
+td.t-warn{color:#b07800;font-weight:600;}
+td.t-good{color:var(--good);font-weight:600;}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;}
+.b-crit{background:#fee2e2;color:var(--crit);}
+.b-blue{background:#eef2ff;color:var(--blue);}
+.b-good{background:#dcfce7;color:#166534;}
+.decision-block{background:var(--s1);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:8px;padding:18px;margin-bottom:20px;}
+.decision-block .db-ttl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin-bottom:6px;}
+.decision-block p{font-size:12px;color:var(--sec);line-height:1.7;}
+.db-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;}
+.assumptions{background:#f8f7f4;border:1px solid var(--grid);border-radius:8px;padding:14px 16px;margin-top:16px;}
+.assumptions .a-ttl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px;}
+.assumptions ul{font-size:11px;color:var(--sec);line-height:1.8;padding-left:16px;}
+footer{margin-top:32px;padding:16px 20px;border-top:1px solid var(--grid);font-size:11px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+footer a{color:var(--blue);text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+footer .ft-r{margin-left:auto;color:var(--muted);}
+@media(max-width:900px){.cols2,.db-grid,.scenario-grid{grid-template-columns:1fr;}}
+@media(max-width:480px){.kpi-row{grid-template-columns:1fr 1fr;}main{padding:14px;}}
+.scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px;}
 .scenario-card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center;}
-.scenario-card .sc-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.scenario-card .sc-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;color:var(--sec);}
 .scenario-card .sc-val{font-size:28px;font-weight:800;margin-bottom:4px;}
 .scenario-card .sc-units{font-size:11px;color:var(--muted);}
-.scenario-card .sc-prob{font-size:12px;font-weight:600;margin-top:8px;padding:4px 10px;border-radius:999px;display:inline-block;}
+.scenario-card .badge{margin-top:10px;}
 .bear{border-top:3px solid var(--crit);} .bear .sc-val{color:var(--crit);}
-.base{border-top:3px solid var(--ind);} .base .sc-val{color:var(--ind);}
+.base{border-top:3px solid var(--blue);} .base .sc-val{color:var(--blue);}
 .bull{border-top:3px solid var(--good);} .bull .sc-val{color:var(--good);}
-table{width:100%;border-collapse:collapse;font-size:12px;}
-th{padding:7px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--grid);}
-td{padding:7px 10px;border-bottom:1px solid var(--grid);color:var(--sec);}
-tr:last-child td{border-bottom:none;} tr:hover td{background:#f4f3f0;}
-footer{margin-top:32px;padding:16px 20px;border-top:1px solid var(--grid);font-size:11px;color:var(--muted);display:flex;gap:16px;}
-footer a{color:var(--ind);text-decoration:none;} footer a:hover{text-decoration:underline;}
+:root{--nav-h:48px;}
+.snav{position:sticky;top:0;z-index:200;background:rgba(249,249,247,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:6px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;min-height:48px;}
+.snav ul{list-style:none;margin:0;padding:0;}
+.snav-brand{font-size:13px;font-weight:800;color:#0f172a;text-decoration:none;margin-right:16px;white-space:nowrap;}
+.snav-brand span{color:var(--blue);}
+.snav-menu,.snav-items,.snav-right{display:flex;align-items:center;gap:2px;}
+.snav-items{flex:1;min-width:0;}
+.snav-right{margin-left:auto;gap:6px;flex-shrink:0;}
+.snav-link,#snDrop>summary{display:flex;align-items:center;min-height:32px;padding:5px 10px;border-radius:5px;font-size:12px;font-weight:500;color:#475569;text-decoration:none;white-space:nowrap;transition:background .12s,color .12s;}
+.sndrop{position:relative;}
+#snDrop>summary{cursor:pointer;user-select:none;gap:4px;list-style:none;}
+#snDrop>summary::-webkit-details-marker{display:none;}
+.snav-link:hover,#snDrop>summary:hover,#snDrop[open]>summary{background:rgba(99,102,241,.07);color:#0f172a;}
+#snDrop>summary svg{width:9px;height:9px;flex-shrink:0;transition:transform .18s;}
+#snDrop[open]>summary svg{transform:rotate(180deg);}
+.sndrop-menu{position:absolute;top:calc(100% + 6px);left:0;z-index:210;width:300px;max-width:calc(100vw - 24px);max-height:min(70vh,520px);overflow-y:auto;overscroll-behavior:contain;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:5px;box-shadow:0 12px 40px rgba(0,0,0,.14);}
+.sndrop-gh{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8;padding:8px 10px 3px;}
+.sndrop-grp+.sndrop-grp{margin-top:4px;border-top:1px solid #e2e8f0;}
+.sndrop-item{display:flex;align-items:center;gap:8px;min-height:40px;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:500;color:#475569;text-decoration:none;transition:background .1s,color .1s;}
+.sndrop-item:hover,.sndrop-item[aria-current]{background:rgba(99,102,241,.09);color:#0f172a;}
+.sndrop-icon{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.sndrop-lbl{font-weight:600;color:#0f172a;font-size:11px;}
+.sndrop-sub{font-size:10px;color:#94a3b8;margin-top:1px;}
+.snav-badge{display:flex;align-items:center;min-height:32px;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid #e2e8f0;color:#475569;text-decoration:none;white-space:nowrap;transition:border-color .12s,color .12s,background .12s;}
+.snav-badge:hover{background:#eef2ff;border-color:#6366f1;color:#6366f1;}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+.tab-bar,.tab-nav{position:sticky;top:var(--nav-h,48px);z-index:190;}
+main,.tab-pane,.card{min-width:0;}
+@media (max-width:600px){
+:root{--nav-h:96px;}
+.snav{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 8px;padding:6px 12px;}
+.snav-brand{grid-column:1;grid-row:1;justify-self:start;margin:0;display:flex;align-items:center;min-height:40px;}
+.snav-menu{grid-column:2;grid-row:1;justify-self:end;}
+.sndrop{position:static;}
+.sndrop-menu{left:12px;right:12px;width:auto;max-width:none;}
+.snav-items{grid-column:1;grid-row:2;justify-self:start;flex:none;}
+.snav-right{grid-column:2;grid-row:2;justify-self:end;margin-left:0;}
+.snav-link,#snDrop>summary,.snav-badge,.tab-btn{min-height:40px;}
+.tab-bar,.tab-nav{padding-left:12px;padding-right:12px;}
+main{padding:14px;}
+}
 </style>
 </head>
 <body>
-<div class="demo-banner"><span>⚠ DEMO DATA — Illustrative numbers only.</span><span class="rs">Production: $292M+ forecast error reduction · Major retail events · Food &amp; Grocery Category</span></div>
-<header class="topbar">
-  <div><div class="brand">Seasonal &amp; Event Demand Planning</div><div class="sub">Event Risk Framework · Scenario Modeling · Pre-event Inventory Positioning</div></div>
-  <div class="links"><a href="../whitepaper.html">📄 Whitepaper →</a></div>
-</header>
-<nav class="tab-nav" id="tabNav">
+<nav class="snav" aria-label="Portfolio and dashboard navigation">
+  <a href="https://asthaj12.github.io/" class="snav-brand">AJ<span> · Portfolio</span></a>
+  <ul class="snav-menu">
+    <li class="sndrop">
+      <details id="snDrop">
+        <summary>Dashboards<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M2 3.5l3 3 3-3"/></svg></summary>
+        <div class="sndrop-menu">
+          <div class="sndrop-grp">
+            <p class="sndrop-gh">Capacity &amp; Supply</p>
+            <ul>
+            <li><a class="sndrop-item" href="https://asthaj12.github.io/ai-customer-strategy-lab/"><div class="sndrop-icon" style="background:rgba(99,102,241,.12)">🧭</div><div><div class="sndrop-lbl">Cloud AI Strategy Lab</div><div class="sndrop-sub">Long-tail AI customers · Unit economics · Capacity pooling</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/cummins-capacity-expansion/"><div class="sndrop-icon" style="background:rgba(99,102,241,.12)">📈</div><div><div class="sndrop-lbl">Long-Range Capacity Planning</div><div class="sndrop-sub">Long-range planning · $12M protected · 15+ lines</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/cummins-capacity-risk/"><div class="sndrop-icon" style="background:rgba(235,104,52,.13)">🏭</div><div><div class="sndrop-lbl">Cummins Capacity &amp; Risk</div><div class="sndrop-sub">Supplier risk · Recovery · $35M averted</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/npi-launch-planning/"><div class="sndrop-icon" style="background:rgba(235,104,52,.13)">🚀</div><div><div class="sndrop-lbl">NPI Launch Planning</div><div class="sndrop-sub">New product intro · Supply readiness</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/replenishment-risk/"><div class="sndrop-icon" style="background:rgba(237,161,0,.12)">📦</div><div><div class="sndrop-lbl">Safety Stock Monitor</div><div class="sndrop-sub">Violation monitor · Risk items</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/logitech-supply-planning/"><div class="sndrop-icon" style="background:rgba(235,104,52,.13)">🌐</div><div><div class="sndrop-lbl">Global S&amp;OP</div><div class="sndrop-sub">Gaming E&amp;O · Supply disruption · Decision forum</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/shopify-demand-forecasting/"><div class="sndrop-icon" style="background:rgba(99,102,241,.12)">🔀</div><div><div class="sndrop-lbl">Network Demand Planning</div><div class="sndrop-sub">Network overview · Forecast RCA · BFCM peak</div></div></a></li>
+            </ul>
+          </div>
+          <div class="sndrop-grp">
+            <p class="sndrop-gh">Forecasting &amp; Decisions</p>
+            <ul>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/forecast-governance/"><div class="sndrop-icon" style="background:rgba(99,102,241,.12)">📊</div><div><div class="sndrop-lbl">Forecast Governance</div><div class="sndrop-sub">Anomaly triage · Bias correction</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/fom-backtesting/"><div class="sndrop-icon" style="background:rgba(27,175,122,.12)">🧪</div><div><div class="sndrop-lbl">FOM Backtesting</div><div class="sndrop-sub">Model validation · Historical accuracy</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/forecast-accuracy/"><div class="sndrop-icon" style="background:rgba(27,175,122,.12)">📉</div><div><div class="sndrop-lbl">Forecast Accuracy</div><div class="sndrop-sub">Period recap · Bias by category · Planner adjustments</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/seasonal-event-intelligence/"><div class="sndrop-icon" style="background:rgba(237,161,0,.12)">🎯</div><div><div class="sndrop-lbl">Seasonal Event Intelligence</div><div class="sndrop-sub">Event lift · Demand signals</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/seasonal-planning/" aria-current="page"><div class="sndrop-icon" style="background:rgba(99,102,241,.12)">📅</div><div><div class="sndrop-lbl">Scenario Planning</div><div class="sndrop-sub">Scenario dashboard · Planning calendar · Risk flags</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/pricing-demand-response/"><div class="sndrop-icon" style="background:rgba(232,123,164,.14)">💲</div><div><div class="sndrop-lbl">Pricing &amp; Demand Response</div><div class="sndrop-sub">Elasticity &amp; lift · Price event tracking</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/fifa-2026-demand/"><div class="sndrop-icon" style="background:rgba(27,175,122,.12)">⚽</div><div><div class="sndrop-lbl">FIFA Demand</div><div class="sndrop-sub">Host city proximity · Team affinity · Staged commitment</div></div></a></li>
+              <li><a class="sndrop-item" href="https://asthaj12.github.io/snap-monitoring/"><div class="sndrop-icon" style="background:rgba(99,102,241,.12)">📜</div><div><div class="sndrop-lbl">Policy Demand Signals</div><div class="sndrop-sub">Test &amp; control · Demand signal · Hypothesis testing</div></div></a></li>
+            </ul>
+          </div>
+        </div>
+      </details>
+    </li>
+  </ul>
+  <ul class="snav-items">
+    <li><a class="snav-link" href="https://asthaj12.github.io/#projects">Projects</a></li>
+    <li><a class="snav-link" href="https://asthaj12.github.io/#skills">Skills</a></li>
+  </ul>
+  <ul class="snav-right">
+    <li><a class="snav-badge" href="https://linkedin.com/in/asthajain12" target="_blank" rel="noopener">LinkedIn ↗</a></li>
+    <li><a class="snav-badge" href="https://github.com/asthaj12" target="_blank" rel="noopener">GitHub ↗</a></li>
+  </ul>
+</nav>
+<script>
+(function(){
+var nav=document.querySelector('.snav');
+var dd=document.getElementById('snDrop');
+function setNavH(){document.documentElement.style.setProperty('--nav-h',nav.offsetHeight+'px');}
+if(window.ResizeObserver){new ResizeObserver(setNavH).observe(nav);}else{setNavH();window.addEventListener('resize',setNavH);}
+dd.addEventListener('focusout',function(e){if(e.relatedTarget&&!dd.contains(e.relatedTarget)){dd.open=false;}});
+document.addEventListener('pointerdown',function(e){if(dd.open&&!dd.contains(e.target)){dd.open=false;}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&dd.open){dd.open=false;dd.querySelector('summary').focus();}});
+})();
+</script>
+<div class="conf-banner">
+  <strong>Confidentiality notice:</strong> Independent portfolio case study. All data, scenarios, product identifiers and results shown here are synthetic. This project does not reproduce any employer's data, systems or confidential business processes.
+</div>
+<div class="demo-banner"><span>⚠ DEMO DATA — Illustrative numbers only.</span><span class="rs">Production: nine-figure forecast-error reduction opportunity identified</span></div>
+
+<div class="tab-bar" id="tabBar">
   <button class="tab-btn active" data-tab="scenarios">Scenario Dashboard</button>
-  <button class="tab-btn" data-tab="calendar">Event Calendar</button>
+  <button class="tab-btn" data-tab="calendar">Planning Calendar</button>
   <button class="tab-btn" data-tab="lift">Lift Analysis</button>
   <button class="tab-btn" data-tab="risk">Risk Flags</button>
-</nav>
+</div>
+
 <main>
 
-<!-- Scenarios -->
-<div id="tab-scenarios" class="tab-panel active">
+<div id="tab-scenarios" class="tab-pane active">
+  <div class="decision-block">
+    <div class="db-grid">
+      <div>
+        <div class="db-ttl">Decision</div>
+        <p>When and how much inventory to commit given uncertain future demand?</p>
+      </div>
+      <div>
+        <div class="db-ttl">Recommendation</div>
+        <p>Stage commitments in three tranches aligned to signal confidence; preserve flexibility early, commit core capacity at moderate confidence, release remaining at high confidence.</p>
+      </div>
+      <div>
+        <div class="db-ttl">Evidence</div>
+        <p>Base case probability rising as leading indicators converge · Staged commitment reduces both excess-inventory and availability risk · Historical patterns suggest multi-wave demand shape</p>
+      </div>
+      <div>
+        <div class="db-ttl">Primary Risk</div>
+        <p>Probability estimates are judgmental and may not capture structural demand shifts or supply disruptions outside the model's training window.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="kpi-row">
-    <div class="kpi bl"><div class="lbl">Next Major Event</div><div class="val">Wk 18</div><div class="delta" style="color:var(--muted)">6 weeks away</div></div>
-    <div class="kpi or"><div class="lbl">Active Scenarios</div><div class="val">3</div><div class="delta" style="color:var(--muted)">Bear / Base / Bull</div></div>
-    <div class="kpi gd"><div class="lbl">Base Case Prob</div><div class="val">61%</div><div class="delta" style="color:var(--good)">Updated this week</div></div>
-    <div class="kpi or"><div class="lbl">Red Flags</div><div class="val">8</div><div class="delta" style="color:var(--crit)">Items need action</div></div>
-    <div class="kpi gd"><div class="lbl">Items Positioned</div><div class="val">1,840</div><div class="delta" style="color:var(--good)">Pre-committed</div></div>
+    <div class="kpi bl"><div class="lbl">Next Planning Milestone</div><div class="val">Wk 18</div><div class="sub">6 weeks away</div></div>
+    <div class="kpi or"><div class="lbl">Active Scenarios</div><div class="val">3</div><div class="sub">Bear / Base / Bull</div></div>
+    <div class="kpi gd"><div class="lbl">Base Case Prob</div><div class="val">61%</div><div class="sub good">Updated this week</div></div>
+    <div class="kpi cr"><div class="lbl">Red Flags</div><div class="val">8</div><div class="sub crit">Items need action</div></div>
+    <div class="kpi aq"><div class="lbl">Items Positioned</div><div class="val">1,840</div><div class="sub good">Pre-committed</div></div>
   </div>
 
   <div class="scenario-grid">
@@ -75,19 +255,34 @@ footer a{color:var(--ind);text-decoration:none;} footer a:hover{text-decoration:
       <div class="sc-label">🐻 Bear Case</div>
       <div class="sc-val">+11.2%</div>
       <div class="sc-units">Expected event lift over baseline</div>
-      <div class="sc-prob" style="background:#fee2e2;color:var(--crit)">Probability: 21%</div>
+      <span class="badge b-crit">Low confidence (≈20%)</span>
     </div>
     <div class="scenario-card base">
       <div class="sc-label">📊 Base Case</div>
       <div class="sc-val">+18.4%</div>
       <div class="sc-units">Expected event lift over baseline</div>
-      <div class="sc-prob" style="background:#dbeafe;color:var(--ind)">Probability: 61%</div>
+      <span class="badge b-blue">Moderate-High confidence (≈60%)</span>
     </div>
     <div class="scenario-card bull">
       <div class="sc-label">🐂 Bull Case</div>
       <div class="sc-val">+26.8%</div>
       <div class="sc-units">Expected event lift over baseline</div>
-      <div class="sc-prob" style="background:#dcfce7;color:#166534">Probability: 18%</div>
+      <span class="badge b-good">Low confidence (≈20%)</span>
+    </div>
+  </div>
+
+  <div class="card mb16">
+    <div class="ttl">Commitment Decision Framework</div>
+    <div class="sub2">Commitment depth scales with signal confidence as the event approaches</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Stage</th><th>Signal Confidence</th><th>Recommended Action</th><th>Trade-off</th></tr></thead>
+        <tbody>
+          <tr><td>Early (6–8 wks out)</td><td>Low</td><td class="strong">Preserve flexibility — commit minimum floor only</td><td class="dim">Lower cost; availability risk if demand surges</td></tr>
+          <tr><td>Intermediate (3–5 wks)</td><td>Moderate</td><td class="strong">Commit core capacity based on base-case scenario</td><td class="dim">Balanced; some excess if bear case materializes</td></tr>
+          <tr><td>Final (1–2 wks out)</td><td>High</td><td class="strong">Release remaining optionality; position for bull upside</td><td class="dim">Higher cost; minimizes stockout risk</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -95,139 +290,150 @@ footer a{color:var(--ind);text-decoration:none;} footer a:hover{text-decoration:
     <div class="card full">
       <div class="ttl">Scenario Probability Evolution — Last 6 Weeks (as event approaches)</div>
       <div class="sub2">Probability distribution shifts as pre-event leading indicators come in. Base case rising = healthy signal convergence.</div>
-      <canvas id="scProbChart" height="75"></canvas>
+      <div class="cw"><canvas id="scProbChart"></canvas></div>
     </div>
     <div class="card">
       <div class="ttl">Demand Shape — Typical Event Profile (Indexed to Baseline)</div>
       <div class="sub2">Pre-event pull · Peak-day lift · Post-event correction · Normalization</div>
-      <canvas id="demandShape" height="240"></canvas>
+      <div class="cw-tall"><canvas id="demandShape"></canvas></div>
     </div>
     <div class="card">
       <div class="ttl">Inventory Commitment Staging — By Confidence Level</div>
       <div class="sub2">Staged inventory optionality aligned to scenario probability thresholds</div>
-      <canvas id="invStaging" height="240"></canvas>
+      <div class="cw-tall"><canvas id="invStaging"></canvas></div>
     </div>
   </div>
 </div>
 
-<!-- Calendar -->
-<div id="tab-calendar" class="tab-panel">
+<div id="tab-calendar" class="tab-pane">
   <div class="chart-grid cols2">
     <div class="card full">
       <div class="ttl">Annual Event Calendar — Demand Lift Index by Week</div>
-      <div class="sub2">Indexed demand lift relative to baseline. Identifies high-risk planning windows. Holiday peaks require 6–8 week pre-positioning.</div>
-      <canvas id="calChart" height="80"></canvas>
+      <div class="sub2">Indexed demand lift relative to baseline. Identifies high-risk planning windows. High-demand cycles require 6–8 week pre-positioning.</div>
+      <div class="cw"><canvas id="calChart"></canvas></div>
     </div>
     <div class="card">
       <div class="ttl">Historical Event Lift — By Event Type (%)</div>
       <div class="sub2">Box plot range: min / 25th / median / 75th / max across prior years</div>
-      <canvas id="liftByEvent" height="240"></canvas>
+      <div class="cw-tall"><canvas id="liftByEvent"></canvas></div>
     </div>
     <div class="card">
       <div class="ttl">Category Sensitivity to Events — Lift vs. Baseline (%)</div>
       <div class="sub2">Which categories see the biggest demand swings during events</div>
-      <canvas id="catSens" height="240"></canvas>
+      <div class="cw-tall"><canvas id="catSens"></canvas></div>
     </div>
   </div>
 </div>
 
-<!-- Lift Analysis -->
-<div id="tab-lift" class="tab-panel">
+<div id="tab-lift" class="tab-pane">
   <div class="chart-grid cols2">
     <div class="card full">
       <div class="ttl">Predicted vs. Actual Lift — Last 8 Events (%)</div>
       <div class="sub2">Forecast model accuracy on event lift prediction. Closer to diagonal = better. Target: within ±5pp of actual.</div>
-      <canvas id="liftAccChart" height="85"></canvas>
+      <div class="cw"><canvas id="liftAccChart"></canvas></div>
     </div>
     <div class="card">
       <div class="ttl">Multi-Wave Demand Shape — Event Wk −2 to +3</div>
       <div class="sub2">Pre-event pull, peak-day, correction, normalization. Base case vs. actuals.</div>
-      <canvas id="waveChart" height="240"></canvas>
+      <div class="cw-tall"><canvas id="waveChart"></canvas></div>
     </div>
     <div class="card">
       <div class="ttl">Lift Attribution — By Driver (%)</div>
       <div class="sub2">How much of the event lift is driven by price, display, category visibility, vs. baseline shift</div>
-      <canvas id="liftAttr" height="240"></canvas>
+      <div class="cw-tall"><canvas id="liftAttr"></canvas></div>
     </div>
   </div>
 </div>
 
-<!-- Risk Flags -->
-<div id="tab-risk" class="tab-panel">
+<div id="tab-risk" class="tab-pane">
   <div class="card">
     <div class="ttl">Pre-Event Risk Flags — Items Requiring Action Before Wk 18</div>
     <div class="sub2">Tiered escalation: 🔴 Critical (exec alert) · 🟡 Warning (cross-functional review) · 🟢 Monitor (planner action)</div>
-    <table>
-      <thead><tr><th>SKU</th><th>Description</th><th>Risk Tier</th><th>Bear Case Gap</th><th>Base Case Gap</th><th>Lead Time</th><th>Action</th></tr></thead>
-      <tbody id="riskTable"></tbody>
-    </table>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>SKU</th><th>Description</th><th>Risk Tier</th><th>Bear Case Gap</th><th>Base Case Gap</th><th>Lead Time</th><th>Action</th></tr></thead>
+        <tbody id="riskTable"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-</main>
-<footer>
-  <span>⚠ Demo data</span>
-  <a href="../whitepaper.html" target="_blank">📄 Methodology →</a>
-  <span style="margin-left:auto">Astha Jain · <a href="https://linkedin.com/in/ajwalmart12" target="_blank">LinkedIn</a></span>
-</footer>
-<script>
-const C={blue:'#6366f1',orange:'#eb6834',aqua:'#1baf7a',yellow:'#eda100',magenta:'#e87ba4',good:'#0ca30c',warn:'#fab219',crit:'#d03b3b',grid:'#e1e0d9',muted:'#898781',text:'#52514e'};
-const base={responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:C.grid,borderWidth:1,titleColor:'#0b0b0b',bodyColor:C.text,padding:10,boxPadding:4}},scales:{x:{grid:{color:C.grid,lineWidth:.5},ticks:{color:C.muted,font:{size:11}}},y:{grid:{color:C.grid,lineWidth:.5},ticks:{color:C.muted,font:{size:11}},border:{dash:[3,3]}}}};
+<div class="assumptions">
+  <div class="a-ttl">Assumptions &amp; Limitations</div>
+  <ul>
+    <li>All scenario data is synthetically generated; no employer-specific event data is used.</li>
+    <li>Probability estimates are illustrative; real systems use leading indicators and Bayesian updating.</li>
+    <li>Demand shape profiles are constructed from publicly available seasonal patterns.</li>
+    <li>Commitment costs and flexibility trade-offs are simplified for demonstration.</li>
+    <li>Model does not account for supply-side constraints or competitor actions.</li>
+  </ul>
+</div>
 
-// Scenario probability evolution
+</main>
+
+<footer>
+  <span>Built by <strong>Astha Jain</strong></span>
+  <a href="https://linkedin.com/in/asthajain12" target="_blank" rel="noopener">LinkedIn ↗</a>
+  <a href="https://github.com/asthaj12" target="_blank" rel="noopener">GitHub ↗</a>
+  <a href="https://asthaj12.github.io/" target="_blank" rel="noopener">Portfolio ↗</a>
+  <a href="mailto:asthajain.sc@gmail.com">Email</a>
+  <span class="ft-r">⚠ Demo data · Scenario Planning &amp; Inventory Commitment</span>
+</footer>
+
+<script>
+Chart.defaults.font.family='system-ui,-apple-system,"Segoe UI",sans-serif';
+Chart.defaults.font.size=11;
+Chart.defaults.color='#898781';
+Chart.defaults.plugins.legend.labels.boxWidth=10;
+Chart.defaults.plugins.legend.labels.padding=12;
+const C={blue:'#6366f1',orange:'#eb6834',aqua:'#1baf7a',yellow:'#eda100',pink:'#e87ba4',violet:'#4a3aa7',good:'#0ca30c',warn:'#fab219',crit:'#d03b3b',grid:'#e1e0d9',muted:'#898781',text:'#52514e'};
+const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',borderColor:C.grid,borderWidth:1,titleColor:'#0b0b0b',bodyColor:C.text,padding:10,boxPadding:4}},scales:{x:{grid:{color:C.grid,lineWidth:.5},ticks:{color:C.muted,font:{size:11}}},y:{grid:{color:C.grid,lineWidth:.5},ticks:{color:C.muted,font:{size:11}},border:{dash:[3,3]}}}};
+const legendOn={display:true,labels:{font:{size:11},color:C.text,boxWidth:10,padding:12}};
+
 const scWks=['6 Wks Out','5 Wks Out','4 Wks Out','3 Wks Out','2 Wks Out','1 Wk Out'];
 new Chart(document.getElementById('scProbChart'),{type:'line',data:{labels:scWks,datasets:[
-  {label:'Base Case %',data:[42,48,52,57,60,61],borderColor:C.blue,backgroundColor:C.blue+'22',fill:true,borderWidth:2,pointRadius:4,tension:.3},
+  {label:'Base Case %',data:[40,45,50,55,58,60],borderColor:C.blue,backgroundColor:C.blue+'22',fill:true,borderWidth:2,pointRadius:4,tension:.3},
   {label:'Bull Case %', data:[30,26,24,22,20,18],borderColor:C.good,borderWidth:2,pointRadius:4,tension:.3},
   {label:'Bear Case %', data:[28,26,24,21,20,21],borderColor:C.crit,borderWidth:2,pointRadius:4,tension:.3,borderDash:[4,3]},
-]},options:{...base,plugins:{...base.plugins,legend:{display:true,labels:{font:{size:11},color:C.text,boxWidth:8,padding:8}}},scales:{x:base.scales.x,y:{...base.scales.y,min:0,max:80,title:{display:true,text:'Probability %',font:{size:11},color:C.muted}}}}});
+]},options:{...base,plugins:{...base.plugins,legend:legendOn},scales:{x:base.scales.x,y:{...base.scales.y,min:0,max:80,title:{display:true,text:'Probability %',font:{size:11},color:C.muted}}}}});
 
-// Demand shape
 const relWks=['−3','−2','−1','Peak','+1','+2','+3'];
 new Chart(document.getElementById('demandShape'),{type:'line',data:{labels:relWks,datasets:[
   {label:'Base Case',data:[1.04,1.09,1.14,1.184,1.06,0.98,1.01],borderColor:C.blue,backgroundColor:C.blue+'22',fill:true,borderWidth:2,pointRadius:4,tension:.3},
   {label:'Bear Case',data:[1.02,1.05,1.09,1.112,1.04,0.97,1.00],borderColor:C.crit,borderWidth:1.5,pointRadius:3,tension:.3,borderDash:[4,3]},
   {label:'Bull Case',data:[1.06,1.13,1.19,1.268,1.08,0.99,1.02],borderColor:C.good,borderWidth:1.5,pointRadius:3,tension:.3,borderDash:[2,4]},
-]},options:{...base,plugins:{...base.plugins,legend:{display:true,labels:{font:{size:11},color:C.text,boxWidth:8,padding:8}},annotation:{annotations:{base:{type:'line',scaleID:'y',value:1,borderColor:C.muted,borderWidth:1,borderDash:[3,3]}}}},scales:{x:base.scales.x,y:{...base.scales.y,title:{display:true,text:'Demand Index (1.0 = baseline)',font:{size:11},color:C.muted}}}}});
+]},options:{...base,plugins:{...base.plugins,legend:legendOn,annotation:{annotations:{base:{type:'line',scaleID:'y',value:1,borderColor:C.muted,borderWidth:1,borderDash:[3,3]}}}},scales:{x:base.scales.x,y:{...base.scales.y,title:{display:true,text:'Demand Index (1.0 = baseline)',font:{size:11},color:C.muted}}}}});
 
-// Inventory staging
 new Chart(document.getElementById('invStaging'),{type:'bar',data:{labels:['Floor\n(Bear 80%+)','Committed\n(Base 50%+)','Optionality\n(Bull 20%+)'],datasets:[{data:[1840,480,210],backgroundColor:[C.blue+'cc',C.aqua+'cc',C.good+'cc'],borderRadius:4,borderSkipped:false}]},options:{...base,scales:{x:base.scales.x,y:{...base.scales.y,title:{display:true,text:'# SKUs Pre-positioned',font:{size:11},color:C.muted}}}}});
 
-// Calendar lift index
 const calWks=Array.from({length:52},(_,i)=>`W${i+1}`);
 const calData=calWks.map((_,i)=>{
   const w=i+1;
-  if(w===24||w===25)return 1.42; // Summer event
-  if(w===47||w===48)return 1.68; // Holiday peak
-  if(w===49||w===50)return 1.82; // Black Friday / Cyber
-  if(w===1||w===52)return 1.22;  // New Year
-  if(w===17||w===18)return 1.28; // Spring event
+  if(w===24||w===25)return 1.42;
+  if(w===47||w===48)return 1.68;
+  if(w===49||w===50)return 1.82;
+  if(w===1||w===52)return 1.22;
+  if(w===17||w===18)return 1.28;
   return 1.0+Math.sin(w/8)*0.04+Math.random()*0.03;
 });
 new Chart(document.getElementById('calChart'),{type:'bar',data:{labels:calWks,datasets:[{data:calData,backgroundColor:calData.map(v=>v>1.6?C.crit+'cc':v>1.3?C.warn+'cc':v>1.1?C.blue+'cc':C.grid),borderRadius:1,borderSkipped:false}]},options:{...base,scales:{x:{...base.scales.x,ticks:{maxTicksLimit:13,color:C.muted,font:{size:10}}},y:{...base.scales.y,title:{display:true,text:'Demand Index',font:{size:11},color:C.muted}}}}});
 
-// Lift by event type
-new Chart(document.getElementById('liftByEvent'),{type:'bar',data:{labels:['Black Friday','Holiday Peak','Summer Event','Spring Event','Back-to-School'],datasets:[{data:[48.2,36.8,28.4,19.2,14.8],backgroundColor:[C.crit+'cc',C.orange+'cc',C.blue+'cc',C.aqua+'cc',C.yellow+'cc'],borderRadius:4,borderSkipped:false}]},options:{...base,indexAxis:'y',scales:{x:{...base.scales.x,title:{display:true,text:'Median Lift % vs. Baseline',font:{size:11},color:C.muted}},y:base.scales.y}}});
+new Chart(document.getElementById('liftByEvent'),{type:'bar',data:{labels:['Launch Wave A','Seasonal Peak','Campaign B','Spring Event','Product Refresh'],datasets:[{data:[48.2,36.8,28.4,19.2,14.8],backgroundColor:[C.crit+'cc',C.orange+'cc',C.blue+'cc',C.aqua+'cc',C.yellow+'cc'],borderRadius:4,borderSkipped:false}]},options:{...base,indexAxis:'y',scales:{x:{...base.scales.x,title:{display:true,text:'Median Lift % vs. Baseline',font:{size:11},color:C.muted}},y:base.scales.y}}});
 
-// Category sensitivity
 new Chart(document.getElementById('catSens'),{type:'bar',data:{labels:['Beverages','Snacks','Dairy','Frozen','Fresh','Grocery','Deli'],datasets:[{data:[42.1,38.4,31.2,28.8,22.4,18.6,14.2],backgroundColor:C.blue+'cc',borderRadius:3,borderSkipped:false}]},options:{...base,indexAxis:'y',scales:{x:{...base.scales.x,title:{display:true,text:'Average Event Lift %',font:{size:11},color:C.muted}},y:base.scales.y}}});
 
-// Lift accuracy scatter
 new Chart(document.getElementById('liftAccChart'),{type:'scatter',data:{datasets:[
   {label:'Event (>20% lift)',data:[{x:18.4,y:19.2},{x:24.1,y:22.8},{x:36.8,y:38.4},{x:48.2,y:44.1}],backgroundColor:C.orange+'cc',pointRadius:8},
   {label:'Event (<20% lift)',data:[{x:9.2,y:8.8},{x:14.2,y:15.1},{x:12.8,y:11.4},{x:19.1,y:18.8}],backgroundColor:C.blue+'cc',pointRadius:8},
-]},options:{...base,plugins:{...base.plugins,legend:{display:true,labels:{font:{size:11},color:C.text,boxWidth:8,padding:8}},annotation:{annotations:{diagonal:{type:'line',xMin:0,xMax:55,yMin:0,yMax:55,borderColor:C.muted,borderWidth:1,borderDash:[4,3],label:{display:true,content:'Perfect forecast',font:{size:10},color:C.muted,position:'end'}}}}},scales:{x:{...base.scales.x,title:{display:true,text:'Predicted Lift %',font:{size:11},color:C.muted}},y:{...base.scales.y,title:{display:true,text:'Actual Lift %',font:{size:11},color:C.muted}}}}});
+]},options:{...base,plugins:{...base.plugins,legend:legendOn,annotation:{annotations:{diagonal:{type:'line',xMin:0,xMax:55,yMin:0,yMax:55,borderColor:C.muted,borderWidth:1,borderDash:[4,3],label:{display:true,content:'Perfect forecast',font:{size:10},color:C.muted,backgroundColor:'rgba(252,252,251,.9)',position:'end'}}}}},scales:{x:{...base.scales.x,title:{display:true,text:'Predicted Lift %',font:{size:11},color:C.muted}},y:{...base.scales.y,title:{display:true,text:'Actual Lift %',font:{size:11},color:C.muted}}}}});
 
-// Wave chart
 new Chart(document.getElementById('waveChart'),{type:'line',data:{labels:['Wk −2','Wk −1','Peak Wk','Wk +1','Wk +2','Wk +3'],datasets:[
   {label:'Predicted',data:[1.09,1.14,1.184,1.06,0.98,1.01],borderColor:C.blue,backgroundColor:C.blue+'22',fill:true,borderWidth:2,pointRadius:4,tension:.3},
   {label:'Actual',   data:[1.11,1.16,1.212,1.04,0.97,1.00],borderColor:C.orange,borderWidth:2,pointRadius:4,tension:.3,borderDash:[4,3]},
-]},options:{...base,plugins:{...base.plugins,legend:{display:true,labels:{font:{size:11},color:C.text,boxWidth:8,padding:8}}},scales:{x:base.scales.x,y:{...base.scales.y,title:{display:true,text:'Demand Index',font:{size:11},color:C.muted}}}}});
+]},options:{...base,plugins:{...base.plugins,legend:legendOn},scales:{x:base.scales.x,y:{...base.scales.y,title:{display:true,text:'Demand Index',font:{size:11},color:C.muted}}}}});
 
-// Lift attribution donut
-new Chart(document.getElementById('liftAttr'),{type:'doughnut',data:{labels:['Price Reduction','Feature/Display','Category Visibility','Baseline Shift'],datasets:[{data:[42,31,18,9],backgroundColor:[C.blue,C.orange,C.aqua,C.yellow],borderWidth:2,borderColor:'#fcfcfb'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:11},color:C.text,boxWidth:10,padding:8}},tooltip:base.plugins.tooltip}}});
+new Chart(document.getElementById('liftAttr'),{type:'doughnut',data:{labels:['Price Reduction','Feature/Display','Category Visibility','Baseline Shift'],datasets:[{data:[42,31,18,9],backgroundColor:[C.blue,C.orange,C.aqua,C.yellow],borderWidth:2,borderColor:'#fcfcfb'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{font:{size:11},color:C.text,boxWidth:10,padding:12}},tooltip:base.plugins.tooltip}}});
 
-// Risk table
 const riskRows=[
   {sku:'SKU-29871',desc:'Sparkling Water 24pk',tier:'🔴 Critical',bear:'-18.2%',base:'-8.4%',lt:'8 wks',action:'Emergency commit required'},
   {sku:'SKU-44302',desc:'Ground Beef 3lb',tier:'🔴 Critical',bear:'-14.6%',base:'-6.2%',lt:'6 wks',action:'Expedite supplier capacity'},
@@ -238,17 +444,15 @@ const riskRows=[
   {sku:'SKU-88312',desc:'Greek Yogurt Plain',tier:'🟢 Monitor',bear:'-2.1%',base:'+1.2%',lt:'2 wks',action:'Watch pre-event velocity'},
   {sku:'SKU-92104',desc:'Frozen Breakfast Sandwich',tier:'🟢 Monitor',bear:'-1.8%',base:'+0.8%',lt:'3 wks',action:'Monitor weekly'},
 ];
-const rtb=document.getElementById('riskTable');
-riskRows.forEach(r=>{
-  const tierColor=r.tier.includes('🔴')?C.crit:r.tier.includes('🟡')?C.warn:C.good;
-  rtb.innerHTML+=`<tr><td style="font-family:monospace;font-size:11px">${r.sku}</td><td>${r.desc}</td><td style="font-weight:600;color:${tierColor}">${r.tier}</td><td style="color:var(--crit)">${r.bear}</td><td style="font-weight:600">${r.base}</td><td>${r.lt}</td><td style="font-size:11px">${r.action}</td></tr>`;
-});
+document.getElementById('riskTable').innerHTML=riskRows.map(r=>{
+  const tierCls=r.tier.includes('🔴')?'t-crit':r.tier.includes('🟡')?'t-warn':'t-good';
+  return `<tr><td class="mono">${r.sku}</td><td>${r.desc}</td><td class="${tierCls}">${r.tier}</td><td class="t-crit">${r.bear}</td><td class="strong">${r.base}</td><td>${r.lt}</td><td class="sm">${r.action}</td></tr>`;
+}).join('');
 
-// Tab switching
-document.getElementById('tabNav').addEventListener('click',e=>{
+document.getElementById('tabBar').addEventListener('click',e=>{
   const btn=e.target.closest('.tab-btn');if(!btn)return;
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
 });
